@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OLED Drawing Pad</title>
+<style>
+body{
+    text-align:center;
+    font-family:Arial;
+}
 
+canvas{
+    border:3px solid black;
+    image-rendering:pixelated;
+    width:512px;
+    height:256px;
+}
+
+button{
+    padding:10px;
+    margin:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>OLED Drawing Pad</h1>
+
+<canvas id="oled" width="128" height="64"></canvas>
+<br>
+<button onclick="clearScreen()">Clear</button>
+
+<script>
+const canvas = document.getElementById("oled");
+const ctx = canvas.getContext("2d");
+
+let drawing = false;
+
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => drawing = false);
+
+canvas.addEventListener("mousemove", (e) => {
+  if(!drawing) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  let x = Math.floor((e.clientX - rect.left) / 4);
+  let y = Math.floor((e.clientY - rect.top) / 4);
+
+  ctx.fillStyle = "black";
+  ctx.fillRect(x, y, 1, 1);
+});
+
+function clearScreen(){
+  ctx.clearRect(0,0,128,64);
+}
+</script>
+
+</body>
+</html>
