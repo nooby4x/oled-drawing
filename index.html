@@ -3,24 +3,43 @@
 <body>
 
 <button id="connect">Connect Arduino</button>
+<br><br>
+
+<canvas id="c" width="128" height="64"
+style="border:1px solid black;width:512px;height:256px;image-rendering:pixelated;">
+</canvas>
 
 <script>
-document.getElementById("connect").addEventListener("click", async () => {
-  try {
-    if (!("serial" in navigator)) {
-      alert("Web Serial is not supported in this browser!");
-      return;
-    }
+let writer;
 
-    const port = await navigator.serial.requestPort();
+document.getElementById("connect").onclick = async () => {
+  const port = await navigator.serial.requestPort();
+  await port.open({ baudRate: 115200 });
 
-    await port.open({ baudRate: 115200 });
+  writer = port.writable.getWriter();
 
-    alert("Arduino Connected!");
-  } catch (err) {
-    alert("ERROR: " + err.message);
-    console.error(err);
-  }
+  alert("Connected!");
+};
+
+const canvas = document.getElementById("c");
+
+canvas.addEventListener("click", async (e) => {
+
+  if (!writer) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = Math.floor((e.clientX - rect.left) / 4);
+  const y = Math.floor((e.clientY - rect.top) / 4);
+
+  const ctx = canvas.getContext("2d");
+  ctx.fillRect(x, y, 1, 1);
+
+  const encoder = new TextEncoder();
+
+  await writer.write(
+    encoder.encode(`${x},${y}\n`)
+  );
 });
 </script>
 
