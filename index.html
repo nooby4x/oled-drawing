@@ -5,20 +5,23 @@
 <button id="connect">Connect Arduino</button>
 
 <script>
-let port;
-let writer;
+document.getElementById("connect").addEventListener("click", async () => {
+  try {
+    if (!("serial" in navigator)) {
+      alert("Web Serial is not supported in this browser!");
+      return;
+    }
 
-document.getElementById("connect").onclick = async () => {
-  port = await navigator.serial.requestPort();
-  await port.open({ baudRate: 115200 });
+    const port = await navigator.serial.requestPort();
 
-  const encoder = new TextEncoder();
-  writer = port.writable.getWriter();
+    await port.open({ baudRate: 115200 });
 
-  await writer.write(encoder.encode("HELLO\n"));
-
-  alert("Sent HELLO!");
-};
+    alert("Arduino Connected!");
+  } catch (err) {
+    alert("ERROR: " + err.message);
+    console.error(err);
+  }
+});
 </script>
 
 </body>
