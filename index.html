@@ -2,45 +2,42 @@
 <html>
 <body>
 
+<input id="text" placeholder="Type text here">
 <button id="connect">Connect Arduino</button>
-<br><br>
-
-<canvas id="c" width="128" height="64"
-style="border:1px solid black;width:512px;height:256px;image-rendering:pixelated;">
-</canvas>
+<button id="send">Send</button>
 
 <script>
 let writer;
 
 document.getElementById("connect").onclick = async () => {
+
   const port = await navigator.serial.requestPort();
-  await port.open({ baudRate: 115200 });
+
+  await port.open({
+    baudRate: 115200
+  });
 
   writer = port.writable.getWriter();
 
   alert("Connected!");
 };
 
-const canvas = document.getElementById("c");
+document.getElementById("send").onclick = async () => {
 
-canvas.addEventListener("click", async (e) => {
+  if (!writer) {
+    alert("Connect first!");
+    return;
+  }
 
-  if (!writer) return;
-
-  const rect = canvas.getBoundingClientRect();
-
-  const x = Math.floor((e.clientX - rect.left) / 4);
-  const y = Math.floor((e.clientY - rect.top) / 4);
-
-  const ctx = canvas.getContext("2d");
-  ctx.fillRect(x, y, 1, 1);
+  const text =
+    document.getElementById("text").value;
 
   const encoder = new TextEncoder();
 
   await writer.write(
-    encoder.encode(`${x},${y}\n`)
+    encoder.encode(text + "\n")
   );
-});
+};
 </script>
 
 </body>
