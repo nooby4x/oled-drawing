@@ -1,43 +1,64 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>OLED Drawing Pad</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+        }
+
+        canvas {
+            border: 2px solid black;
+            image-rendering: pixelated;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+    </style>
+</head>
 <body>
 
-<input id="text" placeholder="Type text here">
-<button id="connect">Connect Arduino</button>
-<button id="send">Send</button>
+<h2>OLED Drawing Pad</h2>
+
+<canvas id="canvas" width="128" height="64"></canvas>
+
+<br><br>
+
+<button onclick="clearCanvas()">Clear</button>
 
 <script>
-let writer;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-document.getElementById("connect").onclick = async () => {
+ctx.fillStyle = 'white';
+ctx.fillRect(0,0,128,64);
 
-  const port = await navigator.serial.requestPort();
+let drawing = false;
 
-  await port.open({
-    baudRate: 115200
-  });
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = false);
 
-  writer = port.writable.getWriter();
+canvas.addEventListener('mousemove', draw);
 
-  alert("Connected!");
-};
+function draw(e) {
+    if (!drawing) return;
 
-document.getElementById("send").onclick = async () => {
+    const rect = canvas.getBoundingClientRect();
 
-  if (!writer) {
-    alert("Connect first!");
-    return;
-  }
+    const x = Math.floor((e.clientX - rect.left) * 128 / rect.width);
+    const y = Math.floor((e.clientY - rect.top) * 64 / rect.height);
 
-  const text =
-    document.getElementById("text").value;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(x, y, 1, 1);
+}
 
-  const encoder = new TextEncoder();
-
-  await writer.write(
-    encoder.encode(text + "\n")
-  );
-};
+function clearCanvas() {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0,0,128,64);
+}
 </script>
 
 </body>
